@@ -1,0 +1,15 @@
+# Clang
+.cache
+
+# Gigi
+.gigi
+
+# tup
+.tup
+
+# Visual Studio Code
+.vscode
+
+# Development Artifacts
+build
+compile_commands.json
