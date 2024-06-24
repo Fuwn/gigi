@@ -7,6 +7,11 @@ Gigi is a Finger protocol server with few features.
 - Gigi can respond to Finger requests statically
 - Gigi can respond to Finger requests dynamically
 
+<p align="center">
+  <br>
+  <img src="https://i.imgur.com/RddckKP.png" width="75%">
+</p>
+
 ## Usage
 
 ### Local
