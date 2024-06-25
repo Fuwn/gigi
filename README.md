@@ -1,11 +1,11 @@
 # 👧️ Gigi
 
-> A Finger protocol server for risk takers
+> A [Finger](https://www.rfc-editor.org/info/rfc742) protocol server for risk takers
 
 Gigi is a Finger protocol server with few features.
 
-- Gigi can respond to Finger requests statically
-- Gigi can respond to Finger requests dynamically
+- Gigi can respond to Finger requests statically.
+- Gigi can respond to Finger requests dynamically.
 
 <p align="center">
   <br>
@@ -24,7 +24,7 @@ send requests, or you could use the old reliable `telnet` or `nc` commands.
 ```bash
 $ finger fuwn.me
 $ telnet fuwn.me
-$ echo -e "" | nc fuwn.me 79
+$ echo | nc fuwn.me 79
 ```
 
 ### Local
@@ -79,8 +79,9 @@ contents of `./gigi/test`. A Finger request of nothing will return the contents
 of `./gigi/default`. The default file is also the fallback file in case the
 requested file does not exist.
 
-To emulate dynamic mode, minus the arguments you can setup a service of some
-kind to periodically update the contents of one of the static files.
+To emulate dynamic mode, minus the support for arguments, you can setup a
+service of some kind to periodically update the contents of one of the static
+files.
 
 ## Licence
 
