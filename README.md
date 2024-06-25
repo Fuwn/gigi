@@ -14,6 +14,19 @@ Gigi is a Finger protocol server with few features.
 
 ## Usage
 
+A live, production deployment of Gigi exists at
+[`finger://fuwn.me`](finger://fuwn.me). Feel free to poke and prod at it as you
+wish.
+
+You can use a Finger client like [finger](https://github.com/reiver/finger) to
+send requests, or you could use the old reliable `telnet` or `nc` commands.
+
+```bash
+$ finger fuwn.me
+$ telnet fuwn.me
+$ echo -e "" | nc fuwn.me 79
+```
+
 ### Local
 
 ```bash
