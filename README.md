@@ -63,7 +63,8 @@ passes any arguments from the Finger request to the executable.
 
 Static mode is enabled by default. A Finger request for `test` will return the
 contents of `./gigi/test`. A Finger request of nothing will return the contents
-of `./gigi/default`.
+of `./gigi/default`. The default file is also the fallback file in case the
+requested file does not exist.
 
 To emulate dynamic mode, minus the arguments you can setup a service of some
 kind to periodically update the contents of one of the static files.
