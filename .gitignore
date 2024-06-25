@@ -13,3 +13,6 @@
 # Development Artifacts
 build
 compile_commands.json
+
+# Ninja
+.ninja_*
