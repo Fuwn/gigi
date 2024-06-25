@@ -1,0 +1,14 @@
+outdir = build
+cc = clang
+name = gigi
+
+rule compile
+  command = $cc -std=c89 -c $in -o $out
+
+rule link
+  command = $cc $in -o $out
+
+build $outdir/$name.o: compile ./$name.c
+build $outdir/$name: link $outdir/$name.o
+
+default $outdir/$name
