@@ -20,7 +20,34 @@ Gigi is a Finger protocol server with few features.
 $ git clone git@github.com:Fuwn/gigi.git
 $ cd gigi
 $ tup
+$ # or
+$ ninja
 ```
+
+### Docker
+
+This command runs the latest Gigi Docker image, with port 79 mapped from inside
+the container to port 7979 on the host system. In practice, you'd actually map
+port 79 to port 79, but that requires root privileges, so we're using 7979.
+
+It also mounts the ./.gigi directory from the host system to the /gigi/.gigi
+directory inside the container. This is where you'd place all your profile
+files. In practice, you'd likely make this a named volume, and add files to the
+named volume itself.
+
+```bash
+$ docker run -v ./.gigi/:/gigi/.gigi -p 7979:79 fuwn/gigi:latest
+$ # or
+$ docker run -v gigi-data:/gigi/.gigi -p 79:79 fuwn/gigi:latest
+```
+
+The second command is the more practical one, as it uses a named volume to store
+the profile files. The named volume is persistent, and can be found at
+`/var/lib/docker/volumes/gigi-data/_data` on most FHS systems.
+
+Docker also significantly reduces the risk of running Gigi, as it is sandboxed
+from the host system. In static mode, there is little to no risk, but in dynamic
+mode, there is a significant risk for arbitrary code execution.
 
 ### Configuration
 
