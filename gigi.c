@@ -176,15 +176,23 @@ void gigi_show(int connection_file_descriptor, const char *arguments) {
 
     snprintf(gigi_show_command, MAXIMUM_COMMAND_LENGTH, "./.gigi/%s",
              gigi_show_arguments);
-    printf("ok: %s\n", gigi_show_command);
 
     gigi_show_file = fopen(gigi_show_command, "r");
-  }
 
-  if (!gigi_show_file) {
-    perror("error: could not open gigi show file\n");
+    if (!gigi_show_file) {
+      fprintf(stderr, "error: could not open gigi show file: %s\n",
+              gigi_show_command);
 
-    return;
+      gigi_show_file = fopen("./.gigi/default", "r");
+    }
+
+    if (!gigi_show_file) {
+      perror("error: could not open default gigi show file: default\n");
+
+      return;
+    }
+
+    printf("ok: %s\n", gigi_show_command);
   }
 
   while (fgets(gigi_show_message, MAXIMUM_DATA_SIZE, gigi_show_file) != NULL) {
