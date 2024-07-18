@@ -1,6 +1,6 @@
 # 👧️ Gigi
 
-> A [Finger](https://www.rfc-editor.org/info/rfc742) protocol server for risk takers
+> An honest [Finger](https://www.rfc-editor.org/info/rfc742) protocol server
 
 Gigi is a Finger protocol server with few features.
 
@@ -60,16 +60,18 @@ the profile files. The named volume is persistent, and can be found at
 
 Docker also significantly reduces the risk of running Gigi, as it is sandboxed
 from the host system. In static mode, there is little to no risk, but in dynamic
-mode, there is a significant risk for arbitrary code execution.
+mode, there is a small risk for arbitrary code execution depending on your
+`.gigi/do` file.
 
 ### Configuration
 
 Gigi is configured through the `./.gigi` directory.
 
-Dynamic response mode is disabled by default in [`gigi.c`](./gigi.c)
-because it is very unsafe. If you wish to live on the edge, uncomment the
-`GIGI_DYNAMIC` macro. Dropping Gigi into a container is significantly safer
-than running it on a host machine, so consider that as an option, too.
+Dynamic response mode is disabled by default as dynamic code execution can be a
+big security risk. If you wish to live on the edge, pass the `GIGI_DYNAMIC`
+environment variable with a value greater than `1` to Gigi. Dropping Gigi into a
+container is significantly safer than running it on a host machine, so consider
+that as an option, too.
 
 Dynamic mode runs any and all executables located at the path `./.gigi/do`, and
 passes any arguments from the Finger request to the executable.
@@ -82,6 +84,11 @@ requested file does not exist.
 To emulate dynamic mode, minus the support for arguments, you can setup a
 service of some kind to periodically update the contents of one of the static
 files.
+
+You can additionally modify the `GIGI_PORT` environment variable to change the
+port Gigi listens on. The default port is 79. If you're running Gigi in a
+Docker container, you can ignore this variable and map any ports using Docker
+directly.
 
 ## Licence
 
