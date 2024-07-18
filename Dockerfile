@@ -1,36 +1,15 @@
-FROM alpine:latest as environment
-
-RUN apk update \
-  && apk upgrade \
-  && apk add --no-cache libstdc++
-
-FROM environment as build_environment
-
-RUN apk add --no-cache \
-  clang \
-  ninja \
-  alpine-sdk \
-  linux-headers
-
-FROM build_environment as builder
+FROM golang:alpine as builder
 
 WORKDIR /gigi
 
-COPY ./gigi.c ./gigi.c
-COPY ./build.ninja  ./build.ninja
+COPY gigi.go .
 
-RUN sed -i 's/#include <bits\/types\/FILE.h>//g' gigi.c
+RUN go build -ldflags "-s -w" -o gigi gigi.go
 
-RUN ninja
-
-RUN strip /gigi/build/gigi
-
-FROM environment
+FROM alpine
 
 WORKDIR /gigi
 
-COPY --from=builder /gigi/build/gigi ./
-
-EXPOSE 79
+COPY --from=builder /gigi/gigi .
 
 ENTRYPOINT ["/gigi/gigi"]
