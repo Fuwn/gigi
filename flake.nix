@@ -41,7 +41,7 @@
         meta = with pkgs.lib; {
           description = "An honest Finger protocol server";
           homepage = "https://github.com/Fuwn/gigi";
-          license = licenses.gpl3;
+          license = licenses.gpl3Only;
           maintainers = [ maintainers.Fuwn ];
           mainPackage = "gigi";
           platforms = platforms.linux;
