@@ -17,3 +17,7 @@ gigi
 
 # Ninja
 .ninja_*
+
+# Nix
+.pre-commit-config.yaml
+result
