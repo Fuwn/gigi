@@ -47,19 +47,24 @@
           platforms = platforms.linux;
         };
 
-        gigi = pkgs.buildGo122Module {
-          inherit meta;
+        gigi =
+          pkgs.buildGo122Module.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.clangStdenv; }
+            {
+              inherit meta;
 
-          pname = "gigi";
-          version = "0.2.0";
-          src = pkgs.lib.cleanSource ./.;
-          vendorHash = null;
+              pname = "gigi";
+              version = "0.2.0";
+              src = pkgs.lib.cleanSource ./.;
+              vendorHash = null;
+              buildInputs = [ pkgs.musl ];
 
-          ldflags = [
-            "-s"
-            "-w"
-          ];
-        };
+              ldflags = [
+                "-s"
+                "-w"
+                "-linkmode=external"
+                "-extldflags=-static"
+              ];
+            };
       in
       {
         packages = {
