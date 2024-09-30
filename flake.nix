@@ -68,19 +68,20 @@
       in
       {
         packages = {
-          default = gigi;
-          gigi = self.packages.${system}.default;
+          inherit gigi;
+
+          default = self.packages.${system}.gigi;
         };
 
         apps = {
-          default = {
+          gigi = {
             inherit meta;
 
             type = "app";
             program = "${self.packages.${system}.default}/bin/gigi";
           };
 
-          gigi = self.apps.${system}.default;
+          default = self.apps.${system}.gigi;
         };
 
         formatter = nixpkgs.legacyPackages."${system}".nixfmt-rfc-style;
