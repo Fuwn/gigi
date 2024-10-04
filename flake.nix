@@ -5,32 +5,17 @@
     nixpkgs.url = "github:NixOS/nixpkgs";
     systems.url = "github:nix-systems/default";
 
-    flake-compat = {
-      url = "github:edolstra/flake-compat";
-      flake = false;
-    };
-
     flake-utils = {
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
-    };
-
-    pre-commit-hooks = {
-      url = "github:cachix/git-hooks.nix";
-
-      inputs = {
-        flake-compat.follows = "flake-compat";
-        nixpkgs.follows = "nixpkgs";
-      };
     };
   };
 
   outputs =
     {
-      self,
-      nixpkgs,
       flake-utils,
-      pre-commit-hooks,
+      nixpkgs,
+      self,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
@@ -84,26 +69,7 @@
           default = self.apps.${system}.gigi;
         };
 
-        formatter = nixpkgs.legacyPackages."${system}".nixfmt-rfc-style;
-
-        checks.pre-commit-check = pre-commit-hooks.lib.${system}.run {
-          src = ./.;
-
-          hooks = {
-            deadnix.enable = true;
-            flake-checker.enable = true;
-            nixfmt-rfc-style.enable = true;
-            statix.enable = true;
-          };
-        };
-
-        devShells.default = nixpkgs.legacyPackages.${system}.mkShell {
-          inherit (self.checks.${system}.pre-commit-check) shellHook;
-
-          buildInputs = self.checks.${system}.pre-commit-check.enabledPackages ++ [
-            pkgs.go_1_22
-          ];
-        };
+        devShells.default = pkgs.mkShell { buildInputs = [ pkgs.go_1_22 ]; };
       }
     );
 }
