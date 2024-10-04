@@ -2,14 +2,15 @@
 
 > An honest [Finger](https://www.rfc-editor.org/info/rfc742) protocol server
 
-Gigi is a Finger protocol server with few features.
+Gigi is a Finger protocol server with few features–the way a Finger server
+should be.
 
 - Gigi can respond to Finger requests statically.
 - Gigi can respond to Finger requests dynamically.
 
 <p align="center">
   <br>
-  <img src="https://i.imgur.com/RddckKP.png" width="75%">
+  <img src="https://i.imgur.com/RddckKP.png" width="75%" alt="Example screenshot">
 </p>
 
 ## Usage
@@ -22,43 +23,54 @@ You can use a Finger client like [finger](https://github.com/reiver/finger) to
 send requests, or you could use the old reliable `telnet` or `nc` commands.
 
 ```bash
-$ finger fuwn.me
-$ telnet fuwn.me
-$ echo | nc fuwn.me 79
+finger fuwn.me
+telnet fuwn.me
+echo | nc fuwn.me 79
 ```
 
-### Local
+### Running Locally
+
+To run Gigi from a single command using Nix, execute `nix run github:Fuwn/gigi`;
+otherwise, try one of the command combinations below.
 
 ```bash
-$ git clone git@github.com:Fuwn/gigi.git
-$ cd gigi
-$ tup
-$ # or
-$ ninja
+# Clone the repository locally
+git clone git@github.com:Fuwn/gigi.git
+
+# Navigate into the local repository
+cd gigi
+
+# Build and run Gigi without Nix; requires Go to be locally available
+go build gigi.go && ./gigi
+
+# Build and run Gigi with Nix
+nix build && ./result/bin/gigi
 ```
 
-### Docker
+### Running using Docker
 
-This command runs the latest Gigi Docker image, with port 79 mapped from inside
+This command runs the latest Gigi Docker image with port 79 mapped from inside
 the container to port 7979 on the host system. In practice, you'd actually map
-port 79 to port 79, but that requires root privileges, so we're using 7979.
+port 79 to port 79, but that requires root privileges, so we're using 7979 here.
 
-It also mounts the ./.gigi directory from the host system to the /gigi/.gigi
+The command also mounts the `./.gigi` directory from the host system to the `/gigi/.gigi`
 directory inside the container. This is where you'd place all your profile
-files. In practice, you'd likely make this a named volume, and add files to the
-named volume itself.
+files. In practice, you'd likely make this a named volume or mount from a more collected
+volume storage facility, and add files to that mounted volume path itself.
 
 ```bash
-$ docker run -v ./.gigi/:/gigi/.gigi -p 7979:79 fuwn/gigi:latest
-$ # or
-$ docker run -v gigi-data:/gigi/.gigi -p 79:79 fuwn/gigi:latest
+# Run Gigi using Docker with a local volume directory
+docker run -v ./.gigi/:/gigi/.gigi -p 7979:79 fuwn/gigi:latest
+
+# Run Gigi using Docker with a named volume and a remote volume directory
+docker run -v gigi-data:/gigi/.gigi -p 79:79 fuwn/gigi:latest
 ```
 
 The second command is the more practical one, as it uses a named volume to store
 the profile files. The named volume is persistent, and can be found at
-`/var/lib/docker/volumes/gigi-data/_data` on most FHS systems.
+`/var/lib/docker/volumes/gigi-data/_data` on most semi-FHS compliant systems by default.
 
-Docker also significantly reduces the risk of running Gigi, as it is sandboxed
+Docker also significantly reduces the risk of running Gigi, as it is *sandboxed*
 from the host system. In static mode, there is little to no risk, but in dynamic
 mode, there is a small risk for arbitrary code execution depending on your
 `.gigi/do` file.
@@ -71,7 +83,7 @@ Dynamic response mode is disabled by default as dynamic code execution can be a
 big security risk. If you wish to live on the edge, pass the `GIGI_DYNAMIC`
 environment variable with a value greater than `1` to Gigi. Dropping Gigi into a
 container is significantly safer than running it on a host machine, so consider
-that as an option, too.
+that as your primary deployment option.
 
 Dynamic mode runs any and all executables located at the path `./.gigi/do`, and
 passes any arguments from the Finger request to the executable.
