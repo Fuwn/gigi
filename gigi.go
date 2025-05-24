@@ -86,8 +86,11 @@ func handleConnection(connection net.Conn, mode int) {
 		return
 	}
 
-	connection.Write([]byte(fileContent))
-	log.Printf("info: success: %s", bufferContent)
+	if _, connectionWriteError := connection.Write([]byte(fileContent)); connectionWriteError != nil {
+		log.Printf("warn: could not write to connection: %s", connectionWriteError.Error())
+	} else {
+		log.Printf("info: success: %s", bufferContent)
+	}
 }
 
 func readFile(filename string) (string, error) {
