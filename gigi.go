@@ -60,10 +60,10 @@ func handleConnection(connection net.Conn, mode int) {
 		return
 	}
 
-	bufferContent := strings.Replace(
-		strings.Replace(
-			strings.Replace(string(connectionReadBuffer), "\x00", "", -1),
-			"\n", "", -1), "\r", "", -1)
+	bufferContent := strings.ReplaceAll(
+		strings.ReplaceAll(
+			strings.ReplaceAll(string(connectionReadBuffer), "\x00", ""),
+			"\n", ""), "\r", "")
 
 	if len(bufferContent) == 0 {
 		bufferContent = "default"
