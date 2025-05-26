@@ -33,7 +33,7 @@
         };
 
         gigi =
-          pkgs.buildGo122Module.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.clangStdenv; }
+          pkgs.buildGo123Module.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.clangStdenv; }
             {
               inherit meta;
 
@@ -69,7 +69,7 @@
           default = self.apps.${system}.gigi;
         };
 
-        devShells.default = pkgs.mkShell { buildInputs = [ pkgs.go_1_22 ]; };
+        devShells.default = pkgs.mkShell { buildInputs = [ pkgs.go_1_23 ]; };
       }
     );
 }
