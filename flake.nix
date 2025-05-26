@@ -21,7 +21,10 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
+        inherit (pkgs.stdenv) isDarwin;
+
         pkgs = import nixpkgs { inherit system; };
+        version = "0.2.0";
 
         meta = with pkgs.lib; {
           description = "An honest Finger protocol server";
@@ -29,26 +32,38 @@
           license = licenses.gpl3Only;
           maintainers = [ maintainers.Fuwn ];
           mainPackage = "gigi";
-          platforms = platforms.linux;
+          platforms = platforms.unix;
         };
 
         gigi =
-          pkgs.buildGo123Module.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.clangStdenv; }
+          pkgs.buildGo123Module.override
             {
-              inherit meta;
+              stdenv = if isDarwin then pkgs.clangStdenv else pkgs.stdenvAdapters.useMoldLinker pkgs.clangStdenv;
+            }
+            {
+              inherit meta version;
 
               pname = "gigi";
-              version = "0.2.0";
               src = pkgs.lib.cleanSource ./.;
               vendorHash = null;
-              buildInputs = [ pkgs.musl ];
+              buildInputs = if isDarwin then [ ] else [ pkgs.musl ];
 
-              ldflags = [
-                "-s"
-                "-w"
-                "-linkmode=external"
-                "-extldflags=-static"
-              ];
+              ldflags =
+                [
+                  "-s"
+                  "-w"
+                  "-X main.Version=${version}"
+                  "-X main.Commit=${version}"
+                ]
+                ++ (
+                  if isDarwin then
+                    [ ]
+                  else
+                    [
+                      "-linkmode=external"
+                      "-extldflags=-static"
+                    ]
+                );
             };
       in
       {
