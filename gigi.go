@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/exec"
 	"strconv"
-	"strings"
+	"sync"
 )
 
 const (
@@ -15,6 +14,14 @@ const (
 	modeStatic           = 0
 	modeDynamic          = 1
 )
+
+var bufferPool = sync.Pool{
+	New: func() interface{} {
+		b := make([]byte, maximumCommandLength)
+
+		return &b
+	},
+}
 
 func main() {
 	fingerPortOption := os.Getenv("GIGI_PORT")
@@ -31,7 +38,7 @@ func main() {
 		}
 	}
 
-	listener, listenerError := net.Listen("tcp", fmt.Sprintf(":%s", fingerPortOption))
+	listener, listenerError := net.Listen("tcp", ":"+fingerPortOption)
 
 	if listenerError != nil {
 		log.Fatalf("error: %s\n", listenerError.Error())
@@ -49,10 +56,12 @@ func main() {
 }
 
 func handleConnection(connection net.Conn, mode int) {
+	connectionReadBuffer := bufferPool.Get().(*[]byte)
+
+	defer bufferPool.Put(connectionReadBuffer)
 	defer connection.Close()
 
-	connectionReadBuffer := make([]byte, maximumCommandLength)
-	_, readError := connection.Read(connectionReadBuffer)
+	n, readError := connection.Read(*connectionReadBuffer)
 
 	if readError != nil {
 		log.Println("warn: could not read from connection")
@@ -60,41 +69,49 @@ func handleConnection(connection net.Conn, mode int) {
 		return
 	}
 
-	bufferContent := strings.ReplaceAll(
-		strings.ReplaceAll(
-			strings.ReplaceAll(string(connectionReadBuffer), "\x00", ""),
-			"\n", ""), "\r", "")
+	filename := cleanBuffer((*connectionReadBuffer)[:n])
 
-	if len(bufferContent) == 0 {
-		bufferContent = "default"
+	if len(filename) == 0 {
+		filename = "default"
 	}
 
-	var fileContent string
+	var fileContent []byte
 	var fileReadError error
 
 	switch mode {
 	case modeDynamic:
-		fileContent, fileReadError = runFile(bufferContent)
-
+		fileContent, fileReadError = runFile(filename)
 	default:
-		fileContent, fileReadError = readFile(bufferContent)
+		fileContent, fileReadError = readFile(filename)
 	}
 
 	if fileReadError != nil {
-		log.Printf("warn: could not read from file: %s", bufferContent)
+		log.Printf("warn: could not read from file: %s", filename)
 
 		return
 	}
 
-	if _, connectionWriteError := connection.Write([]byte(fileContent)); connectionWriteError != nil {
+	if _, connectionWriteError := connection.Write(fileContent); connectionWriteError != nil {
 		log.Printf("warn: could not write to connection: %s", connectionWriteError.Error())
 	} else {
-		log.Printf("info: success: %s", bufferContent)
+		log.Printf("info: success: %s", filename)
 	}
 }
 
-func readFile(filename string) (string, error) {
-	fileContent, fileReadError := os.ReadFile(fmt.Sprintf("./.gigi/%s", filename))
+func cleanBuffer(buf []byte) string {
+	result := make([]byte, 0, len(buf))
+
+	for _, b := range buf {
+		if b != 0 && b != '\n' && b != '\r' {
+			result = append(result, b)
+		}
+	}
+
+	return string(result)
+}
+
+func readFile(filename string) ([]byte, error) {
+	fileContent, fileReadError := os.ReadFile("./.gigi/" + filename)
 
 	if fileReadError != nil {
 		fileContent, fileReadError = os.ReadFile("./.gigi/default")
@@ -102,22 +119,22 @@ func readFile(filename string) (string, error) {
 		if fileReadError != nil {
 			log.Printf("error: could not read from file: %s\n", filename)
 
-			return "", fileReadError
+			return nil, fileReadError
 		}
 	}
 
-	return string(fileContent), nil
+	return fileContent, nil
 }
 
-func runFile(arguments string) (string, error) {
+func runFile(arguments string) ([]byte, error) {
 	command := exec.Command("./.gigi/do", arguments)
 	commandOutput, commandError := command.Output()
 
 	if commandError != nil {
 		log.Printf("error: could not run command: %s\n", commandError)
 
-		return "", commandError
+		return nil, commandError
 	}
 
-	return string(commandOutput), nil
+	return commandOutput, nil
 }
