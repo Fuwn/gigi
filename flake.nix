@@ -24,7 +24,7 @@
         inherit (pkgs.stdenv) isDarwin;
 
         pkgs = import nixpkgs { inherit system; };
-        version = "0.2.0";
+        version = "0.2.2";
 
         meta = with pkgs.lib; {
           description = "An honest Finger protocol server";
