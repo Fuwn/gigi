@@ -39,7 +39,7 @@
         };
 
         gigi =
-          pkgs.buildGo123Module.override
+          pkgs.buildGoModule.override
             {
               stdenv = if isDarwin then pkgs.clangStdenv else pkgs.stdenvAdapters.useMoldLinker pkgs.clangStdenv;
             }
@@ -87,7 +87,7 @@
           default = self.apps.${system}.gigi;
         };
 
-        devShells.default = pkgs.mkShell { buildInputs = [ pkgs.go_1_23 ]; };
+        devShells.default = pkgs.mkShell { buildInputs = [ pkgs.go ]; };
       }
     );
 }
